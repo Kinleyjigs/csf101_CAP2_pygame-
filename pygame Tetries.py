@@ -1,40 +1,41 @@
+# Import necessary libraries
 import pygame
 import random
 import sys
 
 # Constants
-SCREEN_WIDTH, SCREEN_HEIGHT = 400, 700
-GRID_SIZE = 30
-GRID_WIDTH, GRID_HEIGHT = SCREEN_WIDTH // GRID_SIZE, SCREEN_HEIGHT // GRID_SIZE
-WHITE = (255, 255, 255)
+SCREEN_WIDTH, SCREEN_HEIGHT = 400, 700 # Define the game window dimensions
+GRID_SIZE = 30 # Size of each grid cell
+GRID_WIDTH, GRID_HEIGHT = SCREEN_WIDTH // GRID_SIZE, SCREEN_HEIGHT // GRID_SIZE # Calculate grid dimensions
+WHITE = (255, 255, 255) #Define colors
 BLACK = (0, 0, 0)
 
 # Tetromino shapes and their rotations
-SHAPES =[ 
-    [[1, 1, 1, 1]],
-    [[1, 1], [1, 1]],
-    [[1, 1, 1], [0, 1, 0]],
-    [[1, 1, 1], [1, 0, 0]],
-    [[1, 1, 1], [0, 0, 1]],
-    [[1, 1, 1], [0, 1, 0]],
-    [[1, 1, 1], [0, 0, 1]]
+SHAPES = [ # Define various tetromino shapes
+    [[1, 1, 1, 1]], # I-shape
+    [[1, 1], [1, 1]], # O-shape
+    [[1, 1, 1], [0, 1, 0]], # T-shape
+    [[1, 1, 1], [1, 0, 0]],  # L-shape
+    [[1, 1, 1], [0, 0, 1]], # J-shape
+    [[1, 1, 1], [0, 1, 0]], # S-shape
+    [[1, 1, 1], [0, 0, 1]] # Z-shape
 ]
 
-# Define colors
+# Define colors for tetromino shapes
 SHAPE_COLORS = [
     (0, 255, 255),  # Cyan
-    (0, 0, 255),    # Blue
+    (0, 0, 255),  # Blue
     (128, 0, 128),  # Purple
     (255, 165, 0),  # Orange
     (255, 255, 0),  # Yellow
-    (0, 255, 0),    # Green
-    (255, 0, 0)     # Red
+    (0, 255, 0),  # Green
+    (255, 0, 0)  # Red
 ]
 
 # Initialize Pygame
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Tetris Clone")
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # Create game window
+pygame.display.set_caption("Tetris Clone")# Set the window title
 
 # Initialize game variables
 grid = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
@@ -49,12 +50,17 @@ def load_high_score():
             return int(file.read())
     except FileNotFoundError:
         return 0
+    except ValueError:
+        return 0
 
 high_score = load_high_score()
 if score > high_score:
     high_score = score
     with open("high_score.txt", "w") as file:
-        file.write(str(high_score))
+        try:
+            file.write(str(high_score))
+        except Exception as e:
+            print(f"Error writing high score: {e}")
 
 # Functions
 def generate_shape():
@@ -96,13 +102,16 @@ def clear_lines():
     if score > high_score:
         high_score = score
         with open("high_score.txt", "w") as file:
-            file.write(str(high_score))
+            try:
+                file.write(str(high_score))
+            except Exception as e:
+                print(f"Error writing high score: {e}")
 
 def rotate(shape, direction):
     if direction == "clockwise":
-        return [[shape[j][i] for j in range(len(shape))] for i in range(len(shape[0])-1, -1, -1)]
+        return [[shape[j][i] for j in range(len(shape))] for i in range(len(shape[0]) - 1, -1, -1)]
     elif direction == "counterclockwise":
-        return [[shape[j][i] for j in range(len(shape)-1, -1, -1)] for i in range(len(shape[0])-1, -1, -1)]
+        return [[shape[j][i] for j in range(len(shape) - 1, -1, -1)] for i in range(len(shape[0]) - 1, -1, -1)]
     return shape
 
 def display_navigation_instructions():
@@ -161,18 +170,16 @@ score = 0  # Initialize score
 current_shape, current_color, current_shape_x, current_shape_y = generate_shape()
 
 
-
 def draw_pause_screen():
     font = pygame.font.Font(None, 72)
     pause_text = font.render("PAUSED", True, WHITE)
     screen.blit(pause_text, (150, SCREEN_HEIGHT // 2 - 36))
 
-
 score = 0
 draw_scores()
 pygame.display.update()
 
-while True: 
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -209,7 +216,7 @@ while True:
             if not is_valid_position(current_shape, current_shape_x, current_shape_y):
                 display_game_over()
                 pygame.display.update()
-                
+
                 waiting_for_decision = True
                 while waiting_for_decision:
                     for event in pygame.event.get():
@@ -227,7 +234,6 @@ while True:
                                 waiting_for_decision = False
                                 score = 0  # Reset the score to zero
                                 screen.fill(BLACK)
-
                 pygame.display.update()
 
     screen.fill(BLACK)
@@ -249,4 +255,9 @@ while True:
 
     draw_scores()
     pygame.display.update()
-    clock.tick(5)
+    clock.tick(6)
+
+
+
+
+
